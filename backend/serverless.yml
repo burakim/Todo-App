@@ -24,40 +24,151 @@ functions:
       - http:
           method: get
           path: todos
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-get-todos-op-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/todoTable
+      - Effect: Allow
+        Action:
+           - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/todoTable/index/todoSecondaryIndex
+      
 
   # TODO: Configure this function
-  GetTodos:
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
       - http:
           method: post
           path: todos
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-create-todo-op-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/todoTable
 
-  # TODO: Configure this function
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
       - http:
           method: patch
           path: todos/{todoId}
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-update-todo-op-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/todoTable
 
-  # TODO: Configure this function
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
       - http:
           method: delete
           path: todos/{todoId}
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-delete-op-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/todoTable
+      
 
-  # TODO: Configure this function
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
           method: post
           path: todos/{todoId}/attachment
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-generate-url-op-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/todoTable
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::todo-attachments/*  
+
+#todoId (string) - a unique id for an item
+#createdAt (string) - date and time when an item was created
+#name (string) - name of a TODO item (e.g. "Change a light bulb")
+#dueDate (string) - date and time by which an item should be completed
+#done (boolean) - true if an item was completed, false otherwise
 
 resources:
   Resources:
-    # TODO: Add any necessary AWS resources
+    TodosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: todoId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: dueDate
+            AttributeType: S
+          - AttributeName: done
+            AttributeType: B
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: todoId
+            KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: todoTable
+        LocalSecondaryIndexes:
+          - IndexName: todoSecondaryIndex
+            KeySchema:
+              - AttributeName: todoId
+                KeyType: HASH
+              - AttributeName: userId
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL # What attributes will be copied to an index
+
+      AttachmentBucket:
+        Type: AWS::S3::Bucket
+        Properties:
+          BucketName: todo-attachments
+          CorsConfiguration:
+            CorsRules:
+              - AllowedOrigins:
+                  - "*"
+                AllowedHeaders:
+                  - "*"
+                AllowedMethods:
+                  - GET
+                  - PUT
+                  - POST
+                  - DELETE
+                  - HEAD
+                MaxAge: 3000  
+      BucketPolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+          PolicyDocument:
+            Id: MyPolicy
+            Version: "2012-10-17"
+            Statement:
+              - Sid: PublicReadForGetBucketObjects
+                Effect: Allow
+                Principal: "*"
+                Action: "s3:GetObject"
+                Resource: "arn:aws:s3:::todo-attachments/*"
+          Bucket: !Ref AttachmentBucket
+          
