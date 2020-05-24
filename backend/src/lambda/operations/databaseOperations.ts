@@ -17,7 +17,7 @@ export class DatabaseOperations {
     this.docClient = createDynamoDBClient(),
     this.S3 = createS3Bucket();
     this.todosTable = "todoTable";
-    this.bucket = "todo-attachments";
+    this.bucket = "todo-attachments-burak-udacity";
     this.index = "todoSecondaryIndex";
   }
 
