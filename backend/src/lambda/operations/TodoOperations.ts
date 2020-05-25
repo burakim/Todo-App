@@ -16,6 +16,7 @@ export async function getAllTodos(
 export function createTodo(
   event: APIGatewayProxyEvent
 ): Promise<TodoItem> {
+    console.log("Creating todo Item");
   const newTodo: CreateTodoRequest =
     typeof event.body === "string" ? JSON.parse(event.body) : event.body;
   return  dbOperationFunctions.createTodo({
@@ -29,11 +30,13 @@ export function createTodo(
 export async function generateUploadUrl(
   event: APIGatewayProxyEvent
 ): Promise<string> {
+    console.log("Creating upload url");
   return dbOperationFunctions.generateUploadUrl(
     event.pathParameters.todoId, 
     getUserId(event));
 }
 export async function updateTodo(event: APIGatewayProxyEvent) {
+    console.log("Updating todo Item");
   return dbOperationFunctions.updateTodo(
     getUserId(event),
     event.pathParameters.todoId,
@@ -41,5 +44,6 @@ export async function updateTodo(event: APIGatewayProxyEvent) {
       );
 }
 export async function deleteTodo(event: APIGatewayProxyEvent) {
+    console.log("Deleting todo Item");
   return dbOperationFunctions.deleteTodo(event.pathParameters.todoId, getUserId(event));
 }
