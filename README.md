@@ -1,7 +1,7 @@
 Backend Urls:
   endpoints:
-  - GET - https://ji4sbtapac.execute-api.us-east-1.amazonaws.com/dev/todos
-  - POST - https://ji4sbtapac.execute-api.us-east-1.amazonaws.com/dev/todos
-  - PATCH - https://ji4sbtapac.execute-api.us-east-1.amazonaws.com/dev/todos/{todoId}
-  - DELETE - https://ji4sbtapac.execute-api.us-east-1.amazonaws.com/dev/todos/{todoId}
-  - POST - https://ji4sbtapac.execute-api.us-east-1.amazonaws.com/dev/todos/{todoId}/attachment
+  - GET - https://77xmbm6n0g.execute-api.us-east-1.amazonaws.com/dev/todos
+  - POST - https://77xmbm6n0g.execute-api.us-east-1.amazonaws.com/dev/todos
+  - PATCH - https://77xmbm6n0g.execute-api.us-east-1.amazonaws.com/dev/todos/{todoId}
+  - DELETE - https://77xmbm6n0g.execute-api.us-east-1.amazonaws.com/dev/todos/{todoId}
+  - POST - https://77xmbm6n0g.execute-api.us-east-1.amazonaws.com/dev/todos/{todoId}/attachment
