@@ -1,10 +1,10 @@
 service:
-  name: serverless-todo-app-burak
+  name: serverless-todo-app-udacity-burak
 
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
-
+  - serverless-plugin-tracing
 provider:
   name: aws
   runtime: nodejs12.x
@@ -13,15 +13,16 @@ provider:
   region: ${opt:region, 'us-east-1'}
    # enable AWS X-Ray Tracing
   tracing:
-  lambda: true
-  apiGateway: true
-  iamRoleStatements:
-    - Effect: 'Allow' # xray permissions (required)
-      Action:
-        - 'xray:PutTraceSegments'
-        - 'xray:PutTelemetryRecords'
-      Resource:
-        - '*'
+    lambda: true
+    apiGateway: true
+    iamRoleStatements:
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - 'xray:PutTraceSegments'
+          - 'xray:PutTelemetryRecords'
+          - 'logs:PutLogEvents'
+        Resource:
+          - '*'
 
 functions:
 
@@ -142,7 +143,7 @@ resources:
     AttachmentBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: todo-attachments-burak-udacity
+        BucketName: todo-attachments-burak-udacity-files
         CorsConfiguration:
           CorsRules:
             - AllowedOrigins:
@@ -167,12 +168,12 @@ resources:
               Effect: Allow
               Principal: "*"
               Action: "s3:GetObject"
-              Resource: "arn:aws:s3:::todo-attachments-burak-udacity/*"
+              Resource: "arn:aws:s3:::todo-attachments-burak-udacity-files/*"
             - Sid: PublicPutForGetBucketObjects
               Effect: Allow
               Principal: "*"
               Action: "s3:PutObject"
-              Resource: "arn:aws:s3:::todo-attachments-burak-udacity/*"
+              Resource: "arn:aws:s3:::todo-attachments-burak-udacity-files/*"
         Bucket: !Ref AttachmentBucket
     TodosTable:
       Type: AWS::DynamoDB::Table
